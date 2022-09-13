@@ -272,6 +272,13 @@ class MacroStack(threading.local):
             raise InternalException(f"popped {got}, expected {name}")
 
 
+def raise_error_func(func_name: str) -> Callable:
+    def raise_error(*args, **kwargs):
+        raise InternalException(f"{func_name} is not intended to be called here.")
+
+    return raise_error
+
+
 class MacroGenerator(BaseMacroGenerator):
     def __init__(
         self,
@@ -284,6 +291,11 @@ class MacroGenerator(BaseMacroGenerator):
         self.macro = macro
         self.node = node
         self.stack = stack
+
+        if self.context and "adapter" in self.context:
+            if "materialization" in self.macro.unique_id:
+                self.context["special_functions"] = self.context["adapter"].submit_python_job
+            self.context["adapter"].submit_python_job = raise_error_func("submit_python_job")
 
     def get_template(self):
         return template_cache.get_node_template(self.macro)
@@ -314,9 +326,15 @@ class MacroGenerator(BaseMacroGenerator):
             if depth == 0:
                 self.node.depends_on.add_macro(unique_id)
             self.stack.push(unique_id)
+            if unique_id == "macro.dbt.statement" and self.stack.depth == 1:
+                self.context["adapter"].submit_python_job = self.context["special_functions"]
             try:
                 yield
             finally:
+                if unique_id == "macro.dbt.statement" and self.stack.depth == 1:
+                    self.context["adapter"].submit_python_job = raise_error_func(
+                        "submit_python_job"
+                    )
                 self.stack.pop(unique_id)
 
     # this makes MacroGenerator objects callable like functions
