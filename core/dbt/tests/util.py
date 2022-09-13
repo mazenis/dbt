@@ -4,8 +4,9 @@ import yaml
 import json
 import warnings
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 from contextlib import contextmanager
+from dbt.adapters.factory import Adapter
 
 from dbt.main import handle_and_check
 from dbt.logger import log_manager
@@ -308,7 +309,7 @@ def check_relation_types(adapter, relation_to_type):
 # by doing a separate call for each set of tables/relations.
 # Wraps check_relations_equal_with_relations by creating relations
 # from the list of names passed in.
-def check_relations_equal(adapter, relation_names, compare_snapshot_cols=False):
+def check_relations_equal(adapter, relation_names:Tuple, compare_snapshot_cols=False):
     if len(relation_names) < 2:
         raise TestProcessingException(
             "Not enough relations to compare",
@@ -325,7 +326,7 @@ def check_relations_equal(adapter, relation_names, compare_snapshot_cols=False):
 #    adapter.get_columns_in_relation
 #    adapter.get_rows_different_sql
 #    adapter.execute
-def check_relations_equal_with_relations(adapter, relations, compare_snapshot_cols=False):
+def check_relations_equal_with_relations(adapter: Adapter, relations: Tuple, compare_snapshot_cols=False):
 
     with get_connection(adapter):
         basis, compares = relations[0], relations[1:]
