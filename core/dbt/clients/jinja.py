@@ -295,6 +295,8 @@ class MacroGenerator(BaseMacroGenerator):
         if self.context and "adapter" in self.context:
             if "materialization" in self.macro.unique_id:
                 self.context["special_functions"] = self.context["adapter"].submit_python_job
+            else:
+                self.context["special_functions"] = raise_error_func("submit_python_job")
             self.context["adapter"].submit_python_job = raise_error_func("submit_python_job")
 
     def get_template(self):
