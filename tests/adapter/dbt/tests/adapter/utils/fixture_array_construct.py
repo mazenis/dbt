@@ -28,7 +28,7 @@ array_construct as (
 
 )
 
--- we need to cast the arrays to strings in order to compare them to the output in our seed file  
+-- we need to cast the arrays to strings in order to compare them to the output in our seed file
 select
     array_actual,
     {{ cast_array_to_string('array_actual') }} as actual,
