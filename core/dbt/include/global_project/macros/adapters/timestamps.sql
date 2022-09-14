@@ -42,4 +42,3 @@
 {%- macro now(tz=None) -%}
 {{ convert_timezone(current_timestamp_in_utc(), tz) }}
 {%- endmacro -%}
-
