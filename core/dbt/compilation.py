@@ -183,6 +183,9 @@ class Compiler:
 
         context = generate_runtime_model_context(node, self.config, manifest)
         context.update(extra_context)
+        if "adapter" in context:
+            context["adapter"].submit_python_job = jinja.raise_error_func("submit_python_job")
+
         if isinstance(node, CompiledGenericTestNode):
             # for test nodes, add a special keyword args value to the context
             jinja.add_rendered_test_kwargs(context, node)
