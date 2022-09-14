@@ -219,8 +219,9 @@ class TestNamesWithSpaces:
         }
 
     def test_names_with_spaces(self, project):
-        with pytest.raises(ParsingException):
+        with pytest.raises(ParsingException) as exc:
             run_dbt(["run"])
+        assert "cannot contain spaces" in str(exc.value)
 
 
 names_with_special_chars_metrics_yml = """
@@ -254,8 +255,9 @@ class TestNamesWithSpecialChar:
         }
 
     def test_names_with_special_char(self, project):
-        with pytest.raises(ParsingException):
+        with pytest.raises(ParsingException) as exc:
             run_dbt(["run"])
+        assert "must contain only letters, numbers and underscores" in str(exc.value)
 
 
 names_with_leading_numeric_metrics_yml = """
@@ -289,8 +291,9 @@ class TestNamesWithLeandingNumber:
         }
 
     def test_names_with_leading_number(self, project):
-        with pytest.raises(ParsingException):
+        with pytest.raises(ParsingException) as exc:
             run_dbt(["run"])
+        assert "must begin with a letter" in str(exc.value)
 
 
 long_name_metrics_yml = """
@@ -315,7 +318,7 @@ metrics:
 """
 
 
-class TestNamesWithLeadingNumber:
+class TestLongName:
     @pytest.fixture(scope="class")
     def models(self):
         return {
@@ -324,8 +327,9 @@ class TestNamesWithLeadingNumber:
         }
 
     def test_names_with_leading_number(self, project):
-        with pytest.raises(ParsingException):
+        with pytest.raises(ParsingException) as exc:
             run_dbt(["run"])
+        assert "cannot contain more than 126 characters" in str(exc.value)
 
 
 downstream_model_sql = """
