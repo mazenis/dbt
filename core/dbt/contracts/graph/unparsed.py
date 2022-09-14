@@ -1,3 +1,4 @@
+import re
 from dbt.node_types import NodeType
 from dbt.contracts.util import AdditionalPropertiesMixin, Mergeable, Replaceable
 
@@ -484,8 +485,21 @@ class UnparsedMetric(dbtClassMixin, Replaceable):
     @classmethod
     def validate(cls, data):
         super(UnparsedMetric, cls).validate(data)
-        if "name" in data and " " in data["name"]:
-            raise ParsingException(f"Metrics name '{data['name']}' cannot contain spaces")
+        if "name" in data:
+            errors = []
+            if " " in data["name"]:
+                errors.append("cannot contain spaces")
+            if len(data["name"]) > 126:
+                errors.append("cannot contain more than 126 characters")
+            if not (re.match(r"^[A-Za-z]", data["name"])):
+                errors.append("must begin with a letter")
+            if not (re.match(r"[\w-]+$", data["name"])):
+                errors.append("must contain only letters, numbers and underscores")
+
+            if errors:
+                raise ParsingException(
+                    f"Metrics name '{data['name']}' is invalid.  It {', '.join(e for e in errors)}"
+                )
 
         if data.get("calculation_method") == "expression":
             raise ValidationError(
