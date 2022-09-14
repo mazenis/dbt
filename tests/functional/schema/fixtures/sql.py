@@ -1,8 +1,7 @@
-
 _TABLE_ONE = """
 select * from {{ ref('seed') }}
 """
-_TABLE_ONE_DOT_MODEL_SCHEMA= "first_schema"
+_TABLE_ONE_DOT_MODEL_SCHEMA = "first_schema"
 _TABLE_ONE_DOT_MODEL_NAME = f"{_TABLE_ONE_DOT_MODEL_SCHEMA}.view_1"
 _TABLE_ONE_DOT_MODEL = """
 select * from {{ target.schema }}.seed
@@ -104,18 +103,18 @@ select * from {{ ref('view_1') }}
 _VALIDATION_SQL = """
 drop table if exists {database}.{schema}.seed cascade;
 create table {database}.{schema}.seed (
-	id BIGSERIAL PRIMARY KEY,
-	first_name VARCHAR(50),
-	last_name VARCHAR(50),
-	email VARCHAR(50),
-	gender VARCHAR(50),
-	ip_address VARCHAR(20)
+   id BIGSERIAL PRIMARY KEY,
+   first_name VARCHAR(50),
+   last_name VARCHAR(50),
+   email VARCHAR(50),
+   gender VARCHAR(50),
+   ip_address VARCHAR(20)
 );
 
 drop table if exists {database}.{schema}.agg cascade;
 create table {database}.{schema}.agg (
-	last_name VARCHAR(50),
-	count BIGINT
+   last_name VARCHAR(50),
+   count BIGINT
 );
 
 

@@ -1,10 +1,9 @@
 import pytest
-from pathlib import Path
-from dbt.tests.util import list_schemas, run_dbt, check_relations_equal
+from dbt.tests.util import run_dbt, check_relations_equal
 from tests.functional.schema.fixtures.macros import (
     _CUSTOM_MACRO,
     _CUSTOM_MACRO_MULTI_SCHEMA,
-    _CUSTOM_MACRO_W_CONFIG
+    _CUSTOM_MACRO_W_CONFIG,
 )
 from tests.functional.schema.fixtures.sql import (
     _SEED_CSV,
@@ -41,7 +40,6 @@ class BaseTestCustomSchema:
     @pytest.fixture(scope="class")
     def project_config_update(self):
         return {"models": {"schema": _CUSTOM_SCHEMA}}
-        
 
 
 class TestCustomSchema(BaseTestCustomSchema):
@@ -54,9 +52,18 @@ class TestCustomSchema(BaseTestCustomSchema):
         assert table_results["view_1"] == f"{project.test_schema}_{_CUSTOM_SCHEMA}"
         assert table_results["view_2"] == f"{project.test_schema}_{_TABLE_TWO_SCHEMA}"
         assert table_results["table_3"] == f"{project.test_schema}_{_TABLE_THREE_SCHEMA}"
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", f"{project.test_schema}_{_CUSTOM_SCHEMA}.view_1"))
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", f"{project.test_schema}_{_TABLE_TWO_SCHEMA}.view_2"))
-        check_relations_equal(adapter=project.adapter, relation_names=("agg", f"{project.test_schema}_{_TABLE_THREE_SCHEMA}.table_3"))
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("seed", f"{project.test_schema}_{_CUSTOM_SCHEMA}.view_1"),
+        )
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("seed", f"{project.test_schema}_{_TABLE_TWO_SCHEMA}.view_2"),
+        )
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("agg", f"{project.test_schema}_{_TABLE_THREE_SCHEMA}.table_3"),
+        )
 
 
 class TestCustomSchemaWithCustomMacro(BaseTestCustomSchema):
@@ -75,9 +82,18 @@ class TestCustomSchemaWithCustomMacro(BaseTestCustomSchema):
         assert table_results["view_1"] == f"{_CUSTOM_SCHEMA}_{project.test_schema}_macro"
         assert table_results["view_2"] == f"{_TABLE_TWO_SCHEMA}_{project.test_schema}_macro"
         assert table_results["table_3"] == f"{_TABLE_THREE_SCHEMA}_{project.test_schema}_macro"
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", f"{_CUSTOM_SCHEMA}_{project.test_schema}_macro.view_1"))
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", f"{_TABLE_TWO_SCHEMA}_{project.test_schema}_macro.view_2"))
-        check_relations_equal(adapter=project.adapter, relation_names=("agg", f"{_TABLE_THREE_SCHEMA}_{project.test_schema}_macro.table_3"))
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("seed", f"{_CUSTOM_SCHEMA}_{project.test_schema}_macro.view_1"),
+        )
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("seed", f"{_TABLE_TWO_SCHEMA}_{project.test_schema}_macro.view_2"),
+        )
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("agg", f"{_TABLE_THREE_SCHEMA}_{project.test_schema}_macro.table_3"),
+        )
 
 
 class TestCustomSchemaWithPrefix(BaseTestCustomSchema):
@@ -96,9 +112,19 @@ class TestCustomSchemaWithPrefix(BaseTestCustomSchema):
         assert table_results["view_1"] == f"{_CUSTOM_SCHEMA}_{project.test_schema}_macro"
         assert table_results["view_2"] == f"{_TABLE_TWO_SCHEMA}_{project.test_schema}_macro"
         assert table_results["table_3"] == f"{_TABLE_THREE_SCHEMA}_{project.test_schema}_macro"
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", f"{_CUSTOM_SCHEMA}_{project.test_schema}_macro.view_1"))
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", f"{_TABLE_TWO_SCHEMA}_{project.test_schema}_macro.view_2"))
-        check_relations_equal(adapter=project.adapter, relation_names=("agg", f"{_TABLE_THREE_SCHEMA}_{project.test_schema}_macro.table_3"))
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("seed", f"{_CUSTOM_SCHEMA}_{project.test_schema}_macro.view_1"),
+        )
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("seed", f"{_TABLE_TWO_SCHEMA}_{project.test_schema}_macro.view_2"),
+        )
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("agg", f"{_TABLE_THREE_SCHEMA}_{project.test_schema}_macro.table_3"),
+        )
+
 
 class TestCustomSchemaWithPrefixAndDispatch(BaseTestCustomSchema):
     @pytest.fixture(scope="class")
@@ -119,7 +145,9 @@ class TestCustomSchemaWithPrefixAndDispatch(BaseTestCustomSchema):
             ],
         }
 
-    def test__postgres__custom_schema_with_prefix_and_dispatch(self, project, macros, project_config_update):
+    def test__postgres__custom_schema_with_prefix_and_dispatch(
+        self, project, macros, project_config_update
+    ):
         project.run_sql(_VALIDATION_SQL)
         run_dbt(["deps"])
         run_dbt(["seed"])
@@ -129,13 +157,21 @@ class TestCustomSchemaWithPrefixAndDispatch(BaseTestCustomSchema):
         assert table_results["view_1"] == f"{_CUSTOM_SCHEMA}_{project.test_schema}_macro"
         assert table_results["view_2"] == f"{_TABLE_TWO_SCHEMA}_{project.test_schema}_macro"
         assert table_results["table_3"] == f"{_TABLE_THREE_SCHEMA}_{project.test_schema}_macro"
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", f"{_CUSTOM_SCHEMA}_{project.test_schema}_macro.view_1"))
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", f"{_TABLE_TWO_SCHEMA}_{project.test_schema}_macro.view_2"))
-        check_relations_equal(adapter=project.adapter, relation_names=("agg", f"{_TABLE_THREE_SCHEMA}_{project.test_schema}_macro.table_3"))
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("seed", f"{_CUSTOM_SCHEMA}_{project.test_schema}_macro.view_1"),
+        )
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("seed", f"{_TABLE_TWO_SCHEMA}_{project.test_schema}_macro.view_2"),
+        )
+        check_relations_equal(
+            adapter=project.adapter,
+            relation_names=("agg", f"{_TABLE_THREE_SCHEMA}_{project.test_schema}_macro.table_3"),
+        )
 
 
 class TestCustomSchemaWithCustomMacroFromModelName(BaseTestCustomSchema):
-
     @pytest.fixture(scope="class")
     def macros(self):
         return {
@@ -159,7 +195,9 @@ class TestCustomSchemaWithCustomMacroFromModelName(BaseTestCustomSchema):
             "table_3.sql": _TABLE_THREE_DOT_MODEL,
         }
 
-    def test__postgres__custom_schema_from_model_name(self, project, macros, project_config_update):
+    def test__postgres__custom_schema_from_model_name(
+        self, project, macros, project_config_update
+    ):
         project.run_sql(_VALIDATION_SQL)
         run_dbt(["seed"])
         # run_dbt(["build"])
@@ -170,6 +208,12 @@ class TestCustomSchemaWithCustomMacroFromModelName(BaseTestCustomSchema):
         assert table_results[_TABLE_ONE_DOT_MODEL_NAME] == _TABLE_ONE_DOT_MODEL_SCHEMA
         assert table_results[_TABLE_TWO_DOT_MODEL_NAME] == _TABLE_TWO_DOT_MODEL_SCHEMA
         assert table_results["table_3"] == f"{project.test_schema}"
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", _TABLE_ONE_DOT_MODEL_NAME))
-        check_relations_equal(adapter=project.adapter, relation_names=("seed", _TABLE_TWO_DOT_MODEL_NAME))
-        check_relations_equal(adapter=project.adapter, relation_names=("agg", f"{project.test_schema}.table_3"))
+        check_relations_equal(
+            adapter=project.adapter, relation_names=("seed", _TABLE_ONE_DOT_MODEL_NAME)
+        )
+        check_relations_equal(
+            adapter=project.adapter, relation_names=("seed", _TABLE_TWO_DOT_MODEL_NAME)
+        )
+        check_relations_equal(
+            adapter=project.adapter, relation_names=("agg", f"{project.test_schema}.table_3")
+        )
