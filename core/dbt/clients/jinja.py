@@ -327,7 +327,7 @@ class MacroGenerator(BaseMacroGenerator):
             e.stack.append(self.macro)
             raise e
 
-    def _is_statement_under_materailization(self) -> bool:
+    def _is_statement_under_materialization(self) -> bool:
         return bool(
             self.macro.unique_id == "macro.dbt.statement"
             and self.stack
@@ -356,13 +356,13 @@ class MacroGenerator(BaseMacroGenerator):
                 submit_python_func = self.context[FUNCTION_STORE].pop(SUBMIT_PYTHON_JOB, None)
 
             # put submit python functions back for statement macros
-            if self._is_statement_under_materailization():
+            if self._is_statement_under_materialization():
                 self.context["adapter"].submit_python_job = submit_python_func
             try:
                 yield
             finally:
                 # we are done with statement macro, put remove submit python function from adapter
-                if self._is_statement_under_materailization():
+                if self._is_statement_under_materialization():
                     self.context["adapter"].submit_python_job = raise_error_func(
                         "adapter.submit_python_job"
                     )
