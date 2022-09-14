@@ -27,6 +27,7 @@ from dbt.utils import (
 from dbt.clients._jinja_blocks import BlockIterator, BlockData, BlockTag
 from dbt.contracts.graph.compiled import CompiledGenericTestNode
 from dbt.contracts.graph.parsed import ParsedGenericTestNode
+
 from dbt.exceptions import (
     InternalException,
     raise_compiler_error,
@@ -275,9 +276,13 @@ class MacroStack(threading.local):
             raise InternalException(f"popped {got}, expected {name}")
 
 
-def raise_error_func(func_name: str) -> Callable:
+def raise_error_func(
+    func_name: str, error_location: Optional[str] = "(Hook, Operation, Macro, Test)"
+) -> Callable:
     def raise_error(*args, **kwargs):
-        raise InternalException(f"{func_name} is not intended to be called here.")
+        raise InternalException(
+            f"{func_name} is not intended to be called here, location: {error_location}."
+        )
 
     return raise_error
 
@@ -301,7 +306,10 @@ class MacroGenerator(BaseMacroGenerator):
                 self.context[FUNCTION_STORE] = {
                     SUBMIT_PYTHON_JOB: self.context["adapter"].submit_python_job
                 }
-            self.context["adapter"].submit_python_job = raise_error_func("submit_python_job")
+
+            self.context["adapter"].submit_python_job = raise_error_func(
+                "adapter.submit_python_job"
+            )
 
     def get_template(self):
         return template_cache.get_node_template(self.macro)
@@ -346,6 +354,7 @@ class MacroGenerator(BaseMacroGenerator):
             if FUNCTION_STORE in self.context:
                 # remove this function compeltely from context for all other macros
                 submit_python_func = self.context[FUNCTION_STORE].pop(SUBMIT_PYTHON_JOB, None)
+
             # put submit python functions back for statement macros
             if self._is_statement_under_materailization():
                 self.context["adapter"].submit_python_job = submit_python_func
@@ -355,7 +364,7 @@ class MacroGenerator(BaseMacroGenerator):
                 # we are done with statement macro, put remove submit python function from adapter
                 if self._is_statement_under_materailization():
                     self.context["adapter"].submit_python_job = raise_error_func(
-                        "submit_python_job"
+                        "adapter.submit_python_job"
                     )
                 # put submit python functions in context again for future macros
                 if submit_python_func:
